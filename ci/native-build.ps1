@@ -33,10 +33,12 @@ $userData=Join-Path $env:APPDATA 'RIFT'
 New-Item -ItemType Directory -Force -Path $userData|Out-Null
 $marker=Join-Path $userData 'rift-ci-uninstall-retention.txt'
 'Synthetic fixture only'|Set-Content $marker
-$uninstaller=Join-Path $probeTarget 'Uninstall RIFT.exe'
+$uninstaller=Join-Path $env:RUNNER_TEMP 'rift-standalone-uninstall.exe'
+Copy-Item (Join-Path $probeTarget 'Uninstall RIFT.exe') $uninstaller
+Start-Sleep -Seconds 1
 $process=Start-Process $uninstaller -ArgumentList @('/S','/KEEP_APP_DATA','--updated',"_?=$probeTarget") -PassThru
 if(-not $process.WaitForExit(90000)){$process.Kill();throw 'Native uninstaller timed out'}
-if($process.ExitCode -ne 0 -or (Test-Path (Join-Path $probeTarget 'RIFT.exe'))){throw "Native uninstaller failed: $($process.ExitCode)"}
+if($process.ExitCode -ne 0 -or (Test-Path (Join-Path $probeTarget 'RIFT.exe'))){& ./ci/windows-diagnostics.ps1;throw "Native uninstaller failed: $($process.ExitCode)"}
 if(-not(Test-Path $marker)){throw 'Uninstaller removed the user-data fixture'}
 @{version='0.6.2';install='passed';startup='passed';uninstall='passed';userDataRetained=$true}|ConvertTo-Json|Set-Content validation/native-install-result.json -Encoding utf8
 Write-Output 'Native Windows installer, startup, uninstaller and user-data retention passed.'
