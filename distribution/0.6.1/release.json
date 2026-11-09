@@ -1,0 +1,153 @@
+{
+  "version": "0.6.1",
+  "filename": "RIFT-Setup-0.6.1-x64.exe",
+  "size": 120710713,
+  "sha256": "8015a15d74d9c3d4ca3d904732b6e406b720f9e0822b1f6a0a6da266476836b7",
+  "parts": [
+    {
+      "file": "part-000.bin",
+      "size": 4194304,
+      "sha256": "8f07daac90bcff2166a82089027517cd2d7545b90319c5c237896c2b50fba9f4"
+    },
+    {
+      "file": "part-001.bin",
+      "size": 4194304,
+      "sha256": "6467272bf6fe7271171da7261a947788a4c3e45df7744b44786cd0615f32ec8a"
+    },
+    {
+      "file": "part-002.bin",
+      "size": 4194304,
+      "sha256": "31a5e3ece652ec128da5b78fd6dfac78c7d1a6a576d5cfa25495c90d34c0e538"
+    },
+    {
+      "file": "part-003.bin",
+      "size": 4194304,
+      "sha256": "4654e0fd3eeed45a5098f654c2fa6fda1fdc628b11529f8d6eba2164860e24f7"
+    },
+    {
+      "file": "part-004.bin",
+      "size": 4194304,
+      "sha256": "4dd420789e24ab26d96dec00070b8d5a07f8e46691fb594069b23cc4e77227bb"
+    },
+    {
+      "file": "part-005.bin",
+      "size": 4194304,
+      "sha256": "1e7f4246c5b971bf51a4ab3b2c1c3a4e109380d93f506ba46acc63dc1cbdacf5"
+    },
+    {
+      "file": "part-006.bin",
+      "size": 4194304,
+      "sha256": "1d67a56499e3f115f5ff3a6e6f8e9ad8fa97576f26a7a54a982aa640cb81495e"
+    },
+    {
+      "file": "part-007.bin",
+      "size": 4194304,
+      "sha256": "6f2b3c298ab8f59761ce75ed2743ef0dded29a38b9663727522ffcca300a5845"
+    },
+    {
+      "file": "part-008.bin",
+      "size": 4194304,
+      "sha256": "c27e14f13a57463be1f92bee00e31b370097fcdad8b2942eb235adf88594fb78"
+    },
+    {
+      "file": "part-009.bin",
+      "size": 4194304,
+      "sha256": "709cf234b7af40d89fd0b2e37d7d6042bbbad052ef0f7cc4971cc9d4c266b6ce"
+    },
+    {
+      "file": "part-010.bin",
+      "size": 4194304,
+      "sha256": "f6f78f32364e2878a52b3f65992ca5b9812369270d1c3616a1ca8b8c50bbcdd9"
+    },
+    {
+      "file": "part-011.bin",
+      "size": 4194304,
+      "sha256": "f5d774f13d264a587a5469aae2d16b8c2eff9800f2dff6e6d4787cd890905367"
+    },
+    {
+      "file": "part-012.bin",
+      "size": 4194304,
+      "sha256": "6857ba29d09134449aeef84cfbbcc3eac7ff19b18ca313caccb0871fc7e71fbb"
+    },
+    {
+      "file": "part-013.bin",
+      "size": 4194304,
+      "sha256": "67dc7905420f0a51f16810017e5c077dcb59f270d6589e8bcb897ffa19c2196a"
+    },
+    {
+      "file": "part-014.bin",
+      "size": 4194304,
+      "sha256": "91237d5d2c2c275c0ecad64d609a72bfbae1ce8e6c8b1e58318caaeaac155a8a"
+    },
+    {
+      "file": "part-015.bin",
+      "size": 4194304,
+      "sha256": "e717764be550dbebfe2c28146e1e5829227aa5a550a52498d6ca5d7a5db071b6"
+    },
+    {
+      "file": "part-016.bin",
+      "size": 4194304,
+      "sha256": "9baa2ad639830d79f802aea2b0b1bfcf1866a06d76b11ba828ba453206e58a14"
+    },
+    {
+      "file": "part-017.bin",
+      "size": 4194304,
+      "sha256": "cd5a692c1edc68b0a403de9b3406eb3861118bc8e8a7fa726dea7c68a0840310"
+    },
+    {
+      "file": "part-018.bin",
+      "size": 4194304,
+      "sha256": "e42400f989bc7f08fe4bd2196ac7ad357c8c33681780ec5c0bf7cfabf8e3bf9e"
+    },
+    {
+      "file": "part-019.bin",
+      "size": 4194304,
+      "sha256": "80d064808fa78d66095c5753a029aa289858df0cc1231ff0e0cbe55dccb0b3c7"
+    },
+    {
+      "file": "part-020.bin",
+      "size": 4194304,
+      "sha256": "0a906beab616060bb06040404218313169475d0fef9c6d1f665a1acae37971e8"
+    },
+    {
+      "file": "part-021.bin",
+      "size": 4194304,
+      "sha256": "260db135b88445f866b4400172d4d99a23c86e8562cc7d6c13772669212658d0"
+    },
+    {
+      "file": "part-022.bin",
+      "size": 4194304,
+      "sha256": "5450f6ec4f79cdece140ce6ccc4e1b395e91d3187cb77986083eece582e3248d"
+    },
+    {
+      "file": "part-023.bin",
+      "size": 4194304,
+      "sha256": "a05a5bd88bb7f2ad6a4dd36d7d81c9ba1bd1438282fdc545b8d8b761c4f8e6f3"
+    },
+    {
+      "file": "part-024.bin",
+      "size": 4194304,
+      "sha256": "224d510f6c21e93af9653bb74c0fbc49a08daebee6366dcc342275ec6fc2d41c"
+    },
+    {
+      "file": "part-025.bin",
+      "size": 4194304,
+      "sha256": "5ab07c59c4bdf2cc3534a7a9f0594129a6740831c6c73dbcef012a4746dacf9d"
+    },
+    {
+      "file": "part-026.bin",
+      "size": 4194304,
+      "sha256": "20c1fcfd3008e41a53ddff2779f778498c93cf4f3c050cecb738eae2ad95baa2"
+    },
+    {
+      "file": "part-027.bin",
+      "size": 4194304,
+      "sha256": "5f37cc64a7f1747e3496e1ac8313b8fa3a586faaa425c58b936f3e2304684ed9"
+    },
+    {
+      "file": "part-028.bin",
+      "size": 3270201,
+      "sha256": "690a37c7c5dcdba19124b416eea69d8ff26ff0d98d1fcc378ba2f4e3a6170b0f"
+    }
+  ]
+}
