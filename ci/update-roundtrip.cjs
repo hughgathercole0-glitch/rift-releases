@@ -45,5 +45,5 @@ async function state(page){return page.evaluate(async()=> (await window.riftDesk
    result[mode==='interrupt'?'interruptedDownloadRejected':'invalidSignatureRejected']=true;
   }
   result.status='passed';fs.writeFileSync('validation/update-result.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result));await browser.close().catch(()=>{});
- }catch(error){if(activePage){await activePage.screenshot({path:'validation/failed-desktop.png',timeout:5000}).catch(()=>{});const text=await activePage.locator('body').innerText({timeout:5000}).catch(()=>null);if(text)fs.writeFileSync('validation/failed-page.log',text);}throw error;}finally{killApp();server.kill();}
-})().catch(error=>{result.status='failed';result.error=error.stack;fs.writeFileSync('validation/update-result.json',JSON.stringify(result,null,2));console.error(error);process.exitCode=1;});
+ }catch(error){spawnSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File','ci/windows-diagnostics.ps1'],{timeout:15000,stdio:'inherit'});if(activePage&&!activePage.isClosed()){await activePage.screenshot({path:'validation/failed-desktop.png',timeout:5000}).catch(()=>{});const text=await activePage.locator('body').innerText({timeout:5000}).catch(()=>null);if(text)fs.writeFileSync('validation/failed-page.log',text);}throw error;}finally{killApp();server.kill();}
+})().catch(error=>{result.status='failed';result.error=error.stack;fs.writeFileSync('validation/update-result.json',JSON.stringify(result,null,2));console.error(error);process.exit(1);});
