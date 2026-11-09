@@ -1,0 +1,50 @@
+name: Verify and publish Windows preview
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Installer version in distribution/
+        required: true
+        default: 0.6.0
+permissions:
+  contents: write
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    env:
+      RIFT_CI_VERSION: ${{ inputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Reassemble and verify installer
+        run: node ci/reconstruct.mjs
+      - name: Install and launch RIFT on Windows
+        shell: pwsh
+        run: ./ci/smoke.ps1
+      - name: Keep Windows validation logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-validation-${{ inputs.version }}
+          path: validation/
+          if-no-files-found: warn
+      - name: Publish tested unsigned preview
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RIFT_CI_VERSION -notmatch '^\d+\.\d+\.\d+$') { throw 'Invalid version' }
+          $tag = "v$env:RIFT_CI_VERSION-preview.1"
+          $installer = "validation/RIFT-Setup-$env:RIFT_CI_VERSION-x64.exe"
+          $notes = @("RIFT $env:RIFT_CI_VERSION Windows x64 preview.", '', 'Installer checksum, native Windows silent installation and app startup verified by this workflow.', 'This preview is unsigned. It is not trusted publisher signing and does not activate a signed automatic-update feed.', 'Retailer auto-checkout is not verified or enabled.')
+          $notes | Set-Content validation/release-notes.md -Encoding UTF8
+          gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
+          if ($LASTEXITCODE -eq 0) { throw 'Release tag exists; do not overwrite a published preview.' }
+          gh release create $tag $installer validation/SHA256SUMS.txt --repo $env:GITHUB_REPOSITORY --title "RIFT $env:RIFT_CI_VERSION Windows preview" --notes-file validation/release-notes.md --draft --prerelease
+          if ($LASTEXITCODE -ne 0) { throw 'Draft upload failed.' }
+          gh release edit $tag --repo $env:GITHUB_REPOSITORY --draft=false --prerelease
+          if ($LASTEXITCODE -ne 0) { throw 'Draft could not be published.' }
