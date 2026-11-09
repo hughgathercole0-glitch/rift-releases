@@ -1,17 +1,23 @@
 # RIFT releases
 
-Public Windows installer distribution for RIFT. The RIFT website, source checkout and user-entered browser data are not published in this repository.
+Public Windows installer distribution for RIFT. The RIFT website, application source and user-entered data remain private.
 
-## Current status
+## Download
 
-A Windows x64 preview is being prepared. Preview installers are unsigned and untested on Windows; they do not provide verified retailer auto-checkout. Do not treat a draft release as a working download or update feed.
+[RIFT 0.6.0 for Windows x64](https://github.com/hughgathercole0-glitch/rift-releases/releases/tag/v0.6.0-preview.1) is available as an unsigned preview. The release includes SHA256SUMS.txt.
+
+SHA-256: `3b51e7eb45d7d67bf241a8e51f245e572408e346d68c6af4ce37ca24e20ee793`
+
+Installation and startup of that exact installer passed on a native Windows runner: [validation run](https://github.com/hughgathercole0-glitch/rift-releases/actions/runs/42576506017). This does not establish compatibility with every Windows PC. The preview contains the task dashboard and encrypted shipping/payment-label vault. Retailer auto-checkout is not implemented.
+
+Direct asset uploads from the connected integration returned HTTP 401. The workflow now verifies the binary chunks, installs and launches the application, and publishes release assets from the Windows runner.
 
 ## Automatic updates
 
-Stable signed releases need the NSIS installer, its `.blockmap` file and electron-updater `latest.yml`. The intended generic feed is:
+RIFT 0.6.0 includes an in-app form for configuring a signed update source without reinstalling. No live trusted production update feed is enabled yet. Stable signed releases need a valid NSIS installer, its `.blockmap` and electron-updater `latest.yml` at:
 
 `https://github.com/hughgathercole0-glitch/rift-releases/releases/latest/download/`
 
-This is a planned feed, not a claim that signed update metadata is already available. Publisher signing and a real old-to-new Windows update test are required before enabling it.
+The separate Windows update workflow uses disposable test certificates within its runner. Those certificates and signed test installers are never published. Test trust is not public publisher trust. A verified signing provider and a production-signed acceptance test are still required.
 
-Previews should remain prereleases. Existing published versions must not be overwritten.
+Previews remain prereleases. Existing published versions must not be overwritten.
