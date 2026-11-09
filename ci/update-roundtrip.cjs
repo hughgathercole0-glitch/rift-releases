@@ -15,7 +15,7 @@ async function state(page){return page.evaluate(async()=> (await window.riftDesk
   await wait(1500);killApp();await wait(1000);startApp();let {browser,page}=await connect();
   if((await page.evaluate(()=>window.riftDesktop.info())).version!=='0.6.0')throw Error('Unexpected starting version.');
   await page.evaluate(()=>{localStorage.setItem('rift-ci-persistence','native-update-fixture');});
-  await page.locator('a[href="#vault"]').click();await page.locator('#passphrase').fill('CI-only-update-test-passphrase');await page.locator('#unlock').click();await page.waitForFunction(()=>document.querySelector('#vault-status').textContent==='Unlocked');
+  await page.locator('a[data-page="vault"]').click();await page.locator('#passphrase').fill('CI-only-update-test-passphrase');await page.locator('#unlock').click();await page.waitForFunction(()=>document.querySelector('#vault-status').textContent==='Unlocked');
   await page.locator('input[name="givenName"]').fill('CI fixture');await page.locator('#profile-form button[type="submit"]').click();await page.waitForFunction(()=>document.querySelector('#toast').textContent.includes('shipping details saved'));
   const before=await page.evaluate(()=>localStorage.getItem('quickcart.web.vault.v1'));if(before.includes('CI fixture'))throw Error('Fixture shipping data was stored without encryption.');
   await page.evaluate(()=>window.riftDesktop.configureUpdates({url:'https://localhost:18443/',publisher:'RIFT CI Test'}));
@@ -30,7 +30,7 @@ async function state(page){return page.evaluate(async()=> (await window.riftDesk
   if((await page.evaluate(()=>window.riftDesktop.info())).version!=='0.6.1')throw Error('Updated version did not start.');
   if(await page.evaluate(()=>localStorage.getItem('rift-ci-persistence'))!=='native-update-fixture')throw Error('Browser data did not survive the update.');
   if(await page.evaluate(()=>localStorage.getItem('quickcart.web.vault.v1'))!==before)throw Error('Encrypted vault changed during update.');
-  await page.locator('a[href="#vault"]').click();await page.locator('#passphrase').fill('CI-only-update-test-passphrase');await page.locator('#unlock').click();await page.waitForFunction(()=>document.querySelector('#vault-status').textContent==='Unlocked');
+  await page.locator('a[data-page="vault"]').click();await page.locator('#passphrase').fill('CI-only-update-test-passphrase');await page.locator('#unlock').click();await page.waitForFunction(()=>document.querySelector('#vault-status').textContent==='Unlocked');
   if(await page.locator('input[name="givenName"]').inputValue()!=='CI fixture')throw Error('Vault could not be recovered after update.');
   result.userDataAndVaultPreserved=true;await page.screenshot({path:'validation/updated-desktop.png'});
   for(const mode of ['interrupt','bad']){

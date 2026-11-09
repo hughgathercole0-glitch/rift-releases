@@ -46,6 +46,8 @@ Copy-Item $next (Join-Path $server 'good.exe')
 Write-Output 'Signing next-version installer with disposable test certificate'
 $signature=Set-AuthenticodeSignature -FilePath (Join-Path $server 'good.exe') -Certificate $code -HashAlgorithm SHA256
 if($signature.Status -ne 'Valid'){throw "Test signature invalid: $($signature.Status)"}
+Copy-Item (Join-Path $server 'good.exe') (Join-Path $server 'interrupted.exe')
+[IO.File]::AppendAllText((Join-Path $server 'interrupted.exe'),'network-test-fixture')
 Set-Content -LiteralPath (Join-Path $server 'mode.txt') -Value good
 $state=@{app=$app;source=$source;server=$server;pfx=$pfx;certificateScope='isolated test runner only';publisher='RIFT CI Test'}
 $state|ConvertTo-Json|Set-Content validation/update-fixture.json -Encoding UTF8
