@@ -33,6 +33,9 @@ $source=Join-Path $work 'next-source'
 Write-Output 'Extracting next-version fixture'
 & node ci/unpack-next.cjs (Join-Path $target 'resources/app.asar') $source
 if($LASTEXITCODE -ne 0){throw 'Next-version source extraction failed'}
+Write-Output 'Running installed agent tests on native Windows'
+& node --test (Join-Path $source 'agent/engine.test.mjs') (Join-Path $source 'agent/connections.test.mjs')
+if($LASTEXITCODE -ne 0){throw 'Native Windows agent fixture tests failed'}
 $builder=Join-Path $PWD 'ci-tools/node_modules/.bin/electron-builder.cmd'
 $config=Join-Path $PWD 'ci/test-builder.cjs'
 Write-Output 'Building next-version test installer'

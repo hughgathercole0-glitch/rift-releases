@@ -14,6 +14,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - name: Parse production release helper
+        shell: pwsh
+        run: |
+          $tokens=$null; $errors=$null
+          [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $PWD 'ci/publish-release.ps1'),[ref]$tokens,[ref]$errors)|Out-Null
+          if($errors.Count -gt 0){throw ($errors|Out-String)}
+          Write-Output 'Production release helper parsed successfully without executing a release.'
       - run: node ci/reconstruct.mjs
       - name: Install test tools
         run: npm install --prefix ci-tools --no-audit --no-fund electron-builder@26.18.0 @electron/asar@3.4.1 playwright-core@1.65.0
