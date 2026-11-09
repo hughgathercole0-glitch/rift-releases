@@ -31,7 +31,7 @@ $app=Join-Path $target 'RIFT.exe'
 if(-not(Test-Path $app)){throw 'Initial application was not installed'}
 $server=Join-Path $work 'server'
 New-Item -ItemType Directory -Path $server -Force|Out-Null
-$next=Join-Path $PWD 'validation/RIFT-Setup-0.6.1-x64.exe'
+$next=Join-Path $PWD 'validation/RIFT-Setup-0.6.2-x64.exe'
 Copy-Item $next (Join-Path $server 'bad.exe')
 Copy-Item $next (Join-Path $server 'good.exe')
 Write-Output 'Signing next-version installer with disposable test certificate'

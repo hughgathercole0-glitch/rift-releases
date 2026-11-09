@@ -2,7 +2,7 @@ name: Verify Windows update round trip
 on:
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   update:
     runs-on: windows-latest
@@ -27,7 +27,11 @@ jobs:
         env:
           RIFT_CI_VERSION: 0.6.1
       - name: Install test tools
-        run: npm install --prefix ci-tools --no-audit --no-fund @electron/asar@3.4.1 playwright-core@1.65.0
+        run: npm install --prefix ci-tools --no-audit --no-fund electron-builder@26.18.1 @electron/asar@3.4.1 playwright-core@1.65.0
+      - name: Build native installer and verify uninstall
+        timeout-minutes: 12
+        shell: pwsh
+        run: ./ci/native-build.ps1
       - name: Prepare isolated test certificates and update build
         timeout-minutes: 12
         shell: pwsh
@@ -45,3 +49,17 @@ jobs:
             validation/*.json
             validation/*.png
           if-no-files-found: warn
+      - name: Publish validated native Windows preview
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $tag='v0.6.2-preview.1'
+          gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
+          if($LASTEXITCODE -eq 0){throw 'Do not overwrite an existing release'}
+          @('RIFT 0.6.2 Windows x64 preview.','','Built on Windows; installation, startup, standalone uninstall, retained user data and the 0.6.0-to-0.6.2 update test passed.','Repairs only the exact known defective 0.6.0/0.6.1 preview uninstallers, without disabling integrity checks.','Unsigned public preview. The isolated update test uses a disposable certificate that is never distributed.','Production signed updates and retailer auto-checkout remain unavailable.')|Set-Content validation/release-notes.md
+          gh release create $tag validation/RIFT-Setup-0.6.2-x64.exe validation/SHA256SUMS.txt validation/native-release.json --repo $env:GITHUB_REPOSITORY --title 'RIFT 0.6.2 Windows preview' --notes-file validation/release-notes.md --draft --prerelease
+          if($LASTEXITCODE -ne 0){throw 'Draft asset upload failed'}
+          gh release edit $tag --repo $env:GITHUB_REPOSITORY --draft=false --prerelease
+          if($LASTEXITCODE -ne 0){throw 'Preview publication failed'}
