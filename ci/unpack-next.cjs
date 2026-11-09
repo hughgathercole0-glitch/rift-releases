@@ -1,0 +1,2 @@
+const fs=require('node:fs');const path=require('node:path');const asar=require('../ci-tools/node_modules/@electron/asar');
+const [archive,directory]=process.argv.slice(2);asar.extractAll(archive,directory);const file=path.join(directory,'package.json'),pkg=JSON.parse(fs.readFileSync(file,'utf8'));pkg.version='0.6.1';delete pkg.devDependencies;delete pkg.scripts;fs.writeFileSync(file,JSON.stringify(pkg,null,2));console.log('Prepared next-version application from the installed bundle.');

@@ -1,0 +1,47 @@
+$ErrorActionPreference='Stop'
+Set-StrictMode -Version Latest
+$env:CSC_IDENTITY_AUTO_DISCOVERY='false'
+$work=Join-Path $env:RUNNER_TEMP 'rift-update-test'
+New-Item -ItemType Directory -Path $work -Force|Out-Null
+$code=New-SelfSignedCertificate -Type CodeSigningCert -Subject 'CN=RIFT CI Test' -CertStoreLocation Cert:\CurrentUser\My -NotAfter (Get-Date).AddDays(1)
+$tls=New-SelfSignedCertificate -DnsName localhost -CertStoreLocation Cert:\CurrentUser\My -NotAfter (Get-Date).AddDays(1)
+$codeCer=Join-Path $work 'code.cer'
+$tlsCer=Join-Path $work 'tls.cer'
+Export-Certificate -Cert $code -FilePath $codeCer|Out-Null
+Export-Certificate -Cert $tls -FilePath $tlsCer|Out-Null
+Import-Certificate -FilePath $codeCer -CertStoreLocation Cert:\CurrentUser\Root|Out-Null
+Import-Certificate -FilePath $tlsCer -CertStoreLocation Cert:\CurrentUser\Root|Out-Null
+$pass=[guid]::NewGuid().ToString()
+Write-Output "::add-mask::$pass"
+$secure=ConvertTo-SecureString $pass -AsPlainText -Force
+$pfx=Join-Path $work 'tls.pfx'
+Export-PfxCertificate -Cert $tls -FilePath $pfx -Password $secure|Out-Null
+$target=Join-Path $work 'installed'
+$old=Join-Path $PWD 'validation/RIFT-Setup-0.6.0-x64.exe'
+$install=Start-Process $old -ArgumentList @('/S',"/D=$target") -PassThru
+if(-not $install.WaitForExit(120000)){throw 'Initial install timed out'}
+if($install.ExitCode -ne 0){throw 'Initial install failed'}
+$app=Join-Path $target 'RIFT.exe'
+if(-not(Test-Path $app)){throw 'Initial application was not installed'}
+$source=Join-Path $work 'next-source'
+& node ci/unpack-next.cjs (Join-Path $target 'resources/app.asar') $source
+if($LASTEXITCODE -ne 0){throw 'Next-version source extraction failed'}
+$builder=Join-Path $PWD 'ci-tools/node_modules/.bin/electron-builder.cmd'
+$config=Join-Path $PWD 'ci/test-builder.cjs'
+& $builder --projectDir $source --config $config --win nsis --x64 --publish never
+if($LASTEXITCODE -ne 0){throw 'Next-version build failed'}
+$server=Join-Path $work 'server'
+New-Item -ItemType Directory -Path $server -Force|Out-Null
+$next=Join-Path $env:RUNNER_TEMP 'rift-next-build/RIFT-Setup-0.6.1-x64.exe'
+Copy-Item $next (Join-Path $server 'bad.exe')
+Copy-Item $next (Join-Path $server 'good.exe')
+$signature=Set-AuthenticodeSignature -FilePath (Join-Path $server 'good.exe') -Certificate $code -HashAlgorithm SHA256
+if($signature.Status -ne 'Valid'){throw "Test signature invalid: $($signature.Status)"}
+Set-Content -LiteralPath (Join-Path $server 'mode.txt') -Value good
+$state=@{app=$app;source=$source;server=$server;pfx=$pfx;certificateScope='isolated test runner only';publisher='RIFT CI Test'}
+$state|ConvertTo-Json|Set-Content validation/update-fixture.json -Encoding UTF8
+"RIFT_TEST_APP=$app"|Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+"RIFT_TEST_SERVER=$server"|Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+"RIFT_TEST_PFX=$pfx"|Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+"RIFT_TEST_PFX_PASSWORD=$pass"|Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+Write-Output 'Isolated Windows signing and TLS fixtures prepared. No test certificate is published.'

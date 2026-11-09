@@ -1,0 +1,35 @@
+name: Verify Windows update round trip
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  update:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    env:
+      RIFT_CI_VERSION: 0.6.0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node ci/reconstruct.mjs
+      - name: Install test tools
+        run: npm install --prefix ci-tools --no-audit --no-fund electron-builder@26.18.0 @electron/asar@3.4.1 playwright-core@1.65.0
+      - name: Prepare isolated test certificates and update build
+        shell: pwsh
+        run: ./ci/prepare-update.ps1
+      - name: Exercise actual updater and preserve data
+        shell: pwsh
+        run: node ci/update-roundtrip.cjs
+      - name: Keep test evidence without certificates or installers
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-update-evidence
+          path: |
+            validation/*.log
+            validation/*.json
+            validation/*.png
+          if-no-files-found: warn
