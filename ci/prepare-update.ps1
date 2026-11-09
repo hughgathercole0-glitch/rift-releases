@@ -39,8 +39,15 @@ if($LASTEXITCODE -ne 0){throw 'Native Windows agent fixture tests failed'}
 $builder=Join-Path $PWD 'ci-tools/node_modules/.bin/electron-builder.cmd'
 $config=Join-Path $PWD 'ci/test-builder.cjs'
 Write-Output 'Building next-version test installer'
-& $builder --projectDir $source --config $config --win nsis --x64 --publish never
-if($LASTEXITCODE -ne 0){throw 'Next-version build failed'}
+for($attempt=1;$attempt -le 3;$attempt++){
+ $buildLog=Join-Path $PWD 'validation/next-build.log'
+ & $builder --projectDir $source --config $config --win nsis --x64 --publish never 2>&1|Tee-Object -FilePath $buildLog
+ if($LASTEXITCODE -eq 0){break}
+ $buildText=Get-Content -LiteralPath $buildLog -Raw
+ if($attempt -eq 3 -or $buildText -notmatch '50[234]|ETIMEDOUT|ECONNRESET'){throw 'Next-version build failed'}
+ Write-Output 'Retrying transient build-tool download failure using cached dependencies'
+ Start-Sleep -Seconds 3
+}
 $server=Join-Path $work 'server'
 New-Item -ItemType Directory -Path $server -Force|Out-Null
 $next=Join-Path $env:RUNNER_TEMP 'rift-next-build/RIFT-Setup-0.6.1-x64.exe'

@@ -25,7 +25,7 @@ jobs:
       - name: Install test tools
         run: npm install --prefix ci-tools --no-audit --no-fund electron-builder@26.18.0 @electron/asar@3.4.1 playwright-core@1.65.0
       - name: Prepare isolated test certificates and update build
-        timeout-minutes: 8
+        timeout-minutes: 12
         shell: pwsh
         run: ./ci/prepare-update.ps1
       - name: Exercise actual updater and preserve data

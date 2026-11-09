@@ -3,7 +3,7 @@ const {chromium}=require('../ci-tools/node_modules/playwright-core');const asar=
 const app=process.env.RIFT_TEST_APP,serverRoot=process.env.RIFT_TEST_SERVER,archive=path.join(path.dirname(app),'resources','app.asar'),port=19222;
 const result={platform:'Windows',from:'0.6.0',to:'0.6.1',testCertificateOnly:true,trustedPublicPublisher:false,retailerCheckoutVerified:false};
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
-async function until(fn,timeout=120000){const end=Date.now()+timeout;let last;while(Date.now()<end){try{const value=await fn();if(value)return value;}catch(e){last=e;}await wait(750);}throw last||Error('Timed out waiting for native update state.');}
+async function until(fn,timeout=120000,retryErrors=true){const end=Date.now()+timeout;let last;while(Date.now()<end){try{const value=await fn();if(value)return value;}catch(e){if(!retryErrors)throw e;last=e;}await wait(750);}throw last||Error('Timed out waiting for native update state.');}
 function killApp(){spawnSync('taskkill',['/IM','RIFT.exe','/F'],{stdio:'ignore'});}
 function startApp(){const out=fs.openSync('validation/app-update.log','a'),err=fs.openSync('validation/app-update-errors.log','a');const child=spawn(app,[`--remote-debugging-port=${port}`,'--disable-gpu'],{stdio:['ignore',out,err],env:{...process.env,ELECTRON_ENABLE_LOGGING:'1'}});fs.closeSync(out);fs.closeSync(err);return child;}
 async function connect(){const browser=await until(()=>chromium.connectOverCDP(`http://127.0.0.1:${port}`),60000);const page=await until(()=>browser.contexts().flatMap(c=>c.pages()).find(p=>p.url().startsWith('rift://app/')),30000);await page.waitForFunction(()=>!!window.riftDesktop);return {browser,page};}
@@ -20,7 +20,7 @@ async function state(page){return page.evaluate(async()=> (await window.riftDesk
   const before=await page.evaluate(()=>localStorage.getItem('quickcart.web.vault.v1'));if(before.includes('CI fixture'))throw Error('Fixture shipping data was stored without encryption.');
   await page.evaluate(()=>window.riftDesktop.configureUpdates({url:'https://localhost:18443/',publisher:'RIFT CI Test'}));
   await page.getByRole('button',{name:'Check for updates',exact:true}).click();
-  await until(async()=>{const s=await state(page);if(s.status==='error')throw Error('Native update download or signature verification failed: '+s.message);return s.status==='ready';},180000);
+  await until(async()=>{const s=await state(page);if(s.status==='error')throw Error('Native update download or signature verification failed: '+s.message);return s.status==='ready';},180000,false);
   result.downloadVerified=true;
   page.once('dialog',dialog=>dialog.accept());await page.getByRole('button',{name:'Restart & update',exact:true}).click().catch(()=>{});
   await until(()=>version()==='0.6.1',180000);await wait(6000);
@@ -35,7 +35,7 @@ async function state(page){return page.evaluate(async()=> (await window.riftDesk
   result.userDataAndVaultPreserved=true;await page.screenshot({path:'validation/updated-desktop.png'});
   for(const mode of ['interrupt','bad']){
    fs.writeFileSync(path.join(serverRoot,'mode.txt'),mode);await page.evaluate(()=>window.riftDesktop.checkUpdates()).catch(()=>{});
-   await until(async()=>{const s=await state(page);if(s.status==='ready')throw Error('Invalid update was incorrectly offered for installation.');return s.status==='error';},180000);
+   await until(async()=>{const s=await state(page);if(s.status==='ready')throw Error('Invalid update was incorrectly offered for installation.');return s.status==='error';},180000,false);
    const rejected=await page.evaluate(async()=>{try{await window.riftDesktop.installUpdate();return false;}catch{return true;}});if(!rejected||version()!=='0.6.1')throw Error('Failed update changed the installed version or allowed installation.');
    result[mode==='interrupt'?'interruptedDownloadRejected':'invalidSignatureRejected']=true;
   }
