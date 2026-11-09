@@ -32,6 +32,9 @@ async function state(page){return page.evaluate(async()=> (await window.riftDesk
   if(await page.evaluate(()=>localStorage.getItem('quickcart.web.vault.v1'))!==before)throw Error('Encrypted vault changed during update.');
   await page.locator('a[data-page="vault"]').click();await page.locator('#passphrase').fill('CI-only-update-test-passphrase');await page.locator('#unlock').click();await page.waitForFunction(()=>document.querySelector('#vault-status').textContent==='Unlocked');
   if(await page.locator('input[name="givenName"]').inputValue()!=='CI fixture')throw Error('Vault could not be recovered after update.');
+  const testSource=path.join(path.dirname(app),'native-tests');asar.extractAll(archive,testSource);
+  const tests=spawnSync(process.execPath,['--test',...['engine.test.mjs','connections.test.mjs','journal.test.mjs'].map(file=>path.join(testSource,'agent',file))],{encoding:'utf8'});
+  fs.writeFileSync('validation/native-agent-tests.log',tests.stdout+'\n'+tests.stderr);if(tests.status!==0)throw Error('Installed native Windows agent tests failed.');result.nativeAgentTests=true;
   result.userDataAndVaultPreserved=true;await page.screenshot({path:'validation/updated-desktop.png'});
   for(const mode of ['interrupt','bad']){
    fs.writeFileSync(path.join(serverRoot,'mode.txt'),mode);await page.evaluate(()=>window.riftDesktop.checkUpdates()).catch(()=>{});
