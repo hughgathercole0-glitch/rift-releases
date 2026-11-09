@@ -1,23 +1,27 @@
 # RIFT releases
 
-Public Windows installer distribution for RIFT. The RIFT website, application source and user-entered data remain private.
+[Download RIFT 0.6.2 for Windows x64](https://github.com/hughgathercole0-glitch/rift-releases/releases/tag/v0.6.2-preview.1).
 
-## Download
+This public preview is unsigned. The release includes SHA256SUMS.txt and native-release.json. SHA-256: `feb98f90c96bc8c6165707d3058b03780922a46d58222f77df2f7948c192e93d`.
 
-[RIFT 0.6.1 for Windows x64](https://github.com/hughgathercole0-glitch/rift-releases/releases/tag/v0.6.1-preview.1) is available as an unsigned preview. The release includes SHA256SUMS.txt.
+## Verified on Windows
 
-SHA-256: `8015a15d74d9c3d4ca3d904732b6e406b720f9e0822b1f6a0a6da266476836b7`
+[Validation run](https://github.com/hughgathercole0-glitch/rift-releases/actions/runs/42594829125) passed native installer generation, installation, startup, standalone uninstall and retained user data. An actual 0.6.0-to-0.6.2 update passed download/signature verification, explicit silent installation, relaunch, encrypted-vault recovery, 16 agent tests, interrupted-download rejection and unsigned-update rejection.
 
-Installation and startup of that exact installer passed on a native Windows runner: [validation run](https://github.com/hughgathercole0-glitch/rift-releases/actions/runs/42580286360). This does not establish compatibility with every Windows PC. The preview contains the task dashboard and encrypted shipping/payment-label vault. Retailer auto-checkout is not implemented.
+The update test used a disposable certificate trusted only in its runner. No test signing keys, roots, PFX files or test-signed installers are published. Passing this test does not provide trusted public publisher signing or establish compatibility with every PC.
 
-Direct asset uploads from the connected integration returned HTTP 401. The workflow now verifies the binary chunks, installs and launches the application, and publishes release assets from the Windows runner.
+The older 0.6.0/0.6.1 cross-built previews had defective uninstallers. This Windows-built installer repairs only those exact known defective files using its own correctly generated uninstaller, without disabling integrity checks. Older release notes identify the affected previews.
 
 ## Automatic updates
 
-RIFT 0.6.1 includes an in-app form for configuring a signed update source without reinstalling. No live trusted production update feed is enabled yet. Stable signed releases need a valid NSIS installer, its `.blockmap` and electron-updater `latest.yml` at:
+RIFT includes in-app signed-feed configuration without reinstalling. A production signing certificate and stable signed release are still needed before updates are live. The intended feed is:
 
 `https://github.com/hughgathercole0-glitch/rift-releases/releases/latest/download/`
 
-The separate Windows update workflow uses disposable test certificates within its runner. Those certificates and signed test installers are never published. Test trust is not public publisher trust. A verified signing provider and a production-signed acceptance test are still required.
+Future stable signed releases require an incremented application version, installer, blockmap and latest.yml. Do not overwrite existing releases or reuse a published preview's application version for the first stable update.
 
-Previews remain prereleases. Existing published versions must not be overwritten.
+## Application scope
+
+The preview provides the task dashboard, encrypted shipping/payment-label vault and manually recorded checkout history. Live retailer auto-checkout, account/payment integration and live challenge handling are not implemented. Agent tests use simulated retailers/providers and do not prove real checkout success.
+
+The application source repository, RIFT website and user-entered data remain private. This repository contains public distribution files and validation scripts. Public Electron installers include the application code required to run them.
